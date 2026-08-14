@@ -442,8 +442,20 @@ def get_softbank_starter(url):
         "runs": int(match.group(13)),
         "earnedRuns": int(match.group(14)),
         "decision": decision
+
+print()
+print("=== STARTER RECHECK ===")
+
+test_urls = {
+    "2026-04-18": "https://npb.jp/scores/2026/0418/h-b-02/box.html",
+    "2026-04-19": "https://npb.jp/scores/2026/0419/h-b-03/box.html",
+}
+
+for date, url in test_urls.items():
+    result = get_softbank_starter(url)
+    print(date, result)
     }
 
 
-from urllib.parse import urljoin
+
 
