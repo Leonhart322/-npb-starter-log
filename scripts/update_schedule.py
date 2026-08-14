@@ -161,7 +161,7 @@ def parse_month(month):
             )
 
         if "中止" in row_text or "ノーゲーム" in row_text:
-    status = "CANCELLED"
+            status = "CANCELLED"
 
         elif re.search(
             r"\d+\s*-\s*\d+",
