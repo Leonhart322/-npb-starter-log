@@ -369,3 +369,37 @@ for game in cancelled_games:
         "vs",
         game["opponentId"]
     )
+print()
+print("=== STARTER TEST 2026-08-11 ===")
+
+TEST_URL = "https://npb.jp/scores/2026/0811/h-m-15/box.html"
+
+request = urllib.request.Request(
+    TEST_URL,
+    headers={"User-Agent": "Mozilla/5.0"}
+)
+
+with urllib.request.urlopen(request, timeout=30) as response:
+    test_html = response.read().decode(
+        "utf-8",
+        errors="replace"
+    )
+
+# HTMLタグを簡易的に除去
+test_text = re.sub(r"<[^>]+>", " ", test_html)
+test_text = re.sub(r"\s+", " ", test_text)
+
+print("page bytes:", len(test_html))
+print("contains モイネロ:", "モイネロ" in test_text)
+
+# モイネロ周辺を表示して、成績表の実際の並びを確認
+position = test_text.find("モイネロ")
+
+if position != -1:
+    start = max(0, position - 150)
+    end = min(len(test_text), position + 500)
+
+    print("=== モイネロ周辺 ===")
+    print(test_text[start:end])
+else:
+    print("モイネロ NOT FOUND")
