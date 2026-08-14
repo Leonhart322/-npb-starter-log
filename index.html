@@ -1,12 +1,610 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NPB先発登板履歴</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NPB先発登板履歴</title>
+
+<style>
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
+  background: #f5f6f8;
+  color: #222;
+}
+
+header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: white;
+  border-bottom: 1px solid #ddd;
+  padding: 10px 12px;
+}
+
+.top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.team-select {
+  font-size: 16px;
+  font-weight: 700;
+  border: 0;
+  background: transparent;
+  max-width: 210px;
+}
+
+.tabs {
+  display: flex;
+  margin-top: 10px;
+  background: #eee;
+  border-radius: 9px;
+  padding: 3px;
+}
+
+.tab {
+  flex: 1;
+  border: 0;
+  padding: 8px;
+  border-radius: 7px;
+  background: transparent;
+  font-weight: 700;
+}
+
+.tab.active {
+  background: white;
+  box-shadow: 0 1px 4px #bbb;
+}
+
+.page {
+  display: none;
+}
+
+.page.active {
+  display: block;
+}
+
+/* カレンダー */
+
+.calendar-wrap {
+  overflow-x: auto;
+  padding-bottom: 20px;
+}
+
+.calendar {
+  min-width: 770px;
+}
+
+.weekdays,
+.week {
+  display: grid;
+  grid-template-columns: repeat(7, 110px);
+}
+
+.weekdays {
+  position: sticky;
+  top: 101px;
+  z-index: 10;
+  background: #f5f6f8;
+}
+
+.weekday {
+  text-align: center;
+  font-weight: 700;
+  padding: 8px 2px;
+  border-bottom: 1px solid #ccc;
+}
+
+.day {
+  min-height: 125px;
+  background: white;
+  border-right: 1px solid #e2e2e2;
+  border-bottom: 1px solid #e2e2e2;
+  padding: 7px;
+}
+
+.date {
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 7px;
+}
+
+.match {
+  font-size: 12px;
+  margin-bottom: 10px;
+}
+
+.opponent {
+  display: inline-block;
+  font-weight: 700;
+  background: #eef0f3;
+  border-radius: 5px;
+  padding: 2px 5px;
+}
+
+.starter {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.line {
+  margin-top: 3px;
+  font-size: 12px;
+  color: #555;
+}
+
+.future {
+  background: #fafafa;
+}
+
+.no-game {
+  color: #aaa;
+  text-align: center;
+  padding-top: 20px;
+}
+
+.cancelled {
+  color: #b42318;
+  font-weight: 700;
+  margin-top: 12px;
+}
+
+.announced {
+  color: #155eef;
+}
+
+/* 一覧 */
+
+.list {
+  padding: 12px;
+}
+
+.pitcher {
+  background: white;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  overflow: hidden;
+  border: 1px solid #e2e2e2;
+}
+
+.pitcher-head {
+  display: flex;
+  align-items: center;
+  padding: 13px;
+  cursor: pointer;
+}
+
+.status {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 9px;
+  flex: none;
+}
+
+.registered {
+  background: #12b76a;
+}
+
+.ineligible {
+  background: #f04438;
+}
+
+.eligible {
+  background: #f79009;
+}
+
+.pitcher-name {
+  font-weight: 700;
+  flex: 1;
+}
+
+.pitcher-meta {
+  font-size: 12px;
+  color: #777;
+}
+
+.detail {
+  display: none;
+  border-top: 1px solid #eee;
+}
+
+.pitcher.open .detail {
+  display: block;
+}
+
+.roster-info {
+  padding: 10px 13px;
+  font-size: 12px;
+  background: #fafafa;
+}
+
+.appearance {
+  padding: 11px 13px;
+  border-top: 1px solid #eee;
+}
+
+.appearance.farm {
+  background: #eef6ff;
+  border-left: 4px solid #2e90fa;
+}
+
+.appearance-top {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  font-size: 13px;
+  margin-bottom: 5px;
+}
+
+.level {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 5px;
+  border-radius: 4px;
+  background: #eee;
+}
+
+.farm .level {
+  background: #d1e9ff;
+}
+
+.appearance-main {
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.more {
+  width: 100%;
+  border: 0;
+  border-top: 1px solid #eee;
+  background: white;
+  padding: 11px;
+  font-weight: 700;
+}
+
+.legend {
+  padding: 10px 13px;
+  font-size: 11px;
+  color: #666;
+}
+</style>
 </head>
+
 <body>
-  <h1>NPB先発登板履歴</h1>
-  <p>サイトの準備ができました。</p>
+
+<header>
+  <div class="top">
+    <select class="team-select" id="teamSelect">
+      <option value="H">ソフトバンク</option>
+      <option value="F">日本ハム</option>
+      <option value="M">ロッテ</option>
+      <option value="E">楽天</option>
+      <option value="B">オリックス</option>
+      <option value="L">西武</option>
+      <option value="G">巨人</option>
+      <option value="T">阪神</option>
+      <option value="DB">DeNA</option>
+      <option value="C">広島</option>
+      <option value="S">ヤクルト</option>
+      <option value="D">中日</option>
+    </select>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" data-page="calendarPage">カレンダー</button>
+    <button class="tab" data-page="listPage">一覧</button>
+  </div>
+</header>
+
+<main>
+
+<section id="calendarPage" class="page active">
+
+  <div class="calendar-wrap">
+    <div class="calendar">
+
+      <div class="weekdays">
+        <div class="weekday">月</div>
+        <div class="weekday">火</div>
+        <div class="weekday">水</div>
+        <div class="weekday">木</div>
+        <div class="weekday">金</div>
+        <div class="weekday">土</div>
+        <div class="weekday">日</div>
+      </div>
+
+      <div class="week">
+        <div class="day">
+          <div class="date">8/3</div>
+          <div class="no-game">―</div>
+        </div>
+
+        <div class="day">
+          <div class="date">8/4</div>
+          <div class="match"><span class="opponent">E</span> H</div>
+          <div class="starter">モイネロ</div>
+          <div class="line">7回 101球</div>
+        </div>
+
+        <div class="day">
+          <div class="date">8/5</div>
+          <div class="match"><span class="opponent">E</span> H</div>
+          <div class="starter">有原</div>
+          <div class="line">7回 103球</div>
+        </div>
+
+        <div class="day">
+          <div class="date">8/6</div>
+          <div class="match"><span class="opponent">E</span> H</div>
+          <div class="starter">大津</div>
+          <div class="line">6回 88球</div>
+        </div>
+
+        <div class="day">
+          <div class="date">8/7</div>
+          <div class="no-game">―</div>
+        </div>
+
+        <div class="day">
+          <div class="date">8/8</div>
+          <div class="match"><span class="opponent">F</span> V</div>
+          <div class="starter">上沢</div>
+          <div class="line">6回 97球</div>
+        </div>
+
+        <div class="day">
+          <div class="date">8/9</div>
+          <div class="match"><span class="opponent">F</span> V</div>
+          <div class="starter">東浜</div>
+          <div class="line">5回 82球</div>
+        </div>
+      </div>
+
+      <div class="week">
+        <div class="day">
+          <div class="date">8/10</div>
+          <div class="no-game">―</div>
+        </div>
+
+        <div class="day">
+          <div class="date">8/11</div>
+          <div class="match"><span class="opponent">L</span> V</div>
+          <div class="starter">大関</div>
+          <div class="line">6回 94球</div>
+        </div>
+
+        <div class="day">
+          <div class="date">8/12</div>
+          <div class="match"><span class="opponent">E</span> H</div>
+          <div class="cancelled">中止</div>
+        </div>
+
+        <div class="day">
+          <div class="date">8/13</div>
+          <div class="match"><span class="opponent">E</span> H</div>
+          <div class="starter">モイネロ</div>
+          <div class="line">7回 102球</div>
+        </div>
+
+        <div class="day">
+          <div class="date">8/14</div>
+          <div class="no-game">―</div>
+        </div>
+
+        <div class="day future">
+          <div class="date">8/15</div>
+          <div class="match"><span class="opponent">M</span> H</div>
+          <div class="starter announced">[予]有原</div>
+        </div>
+
+        <div class="day future">
+          <div class="date">8/16</div>
+          <div class="match"><span class="opponent">M</span> H</div>
+        </div>
+      </div>
+
+      <div class="week">
+        <div class="day future">
+          <div class="date">8/17</div>
+          <div class="no-game">―</div>
+        </div>
+
+        <div class="day future">
+          <div class="date">8/18</div>
+          <div class="match"><span class="opponent">B</span> V</div>
+        </div>
+
+        <div class="day future">
+          <div class="date">8/19</div>
+          <div class="match"><span class="opponent">B</span> V</div>
+        </div>
+
+        <div class="day future">
+          <div class="date">8/20</div>
+          <div class="match"><span class="opponent">B</span> V</div>
+        </div>
+
+        <div class="day future">
+          <div class="date">8/21</div>
+          <div class="no-game">―</div>
+        </div>
+
+        <div class="day future">
+          <div class="date">8/22</div>
+          <div class="match"><span class="opponent">F</span> H</div>
+        </div>
+
+        <div class="day future">
+          <div class="date">8/23</div>
+          <div class="match"><span class="opponent">F</span> H</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</section>
+
+<section id="listPage" class="page">
+
+  <div class="legend">
+    ● 緑＝登録中　● 赤＝再登録不可　● 橙＝再登録可能
+  </div>
+
+  <div class="list">
+
+    <div class="pitcher">
+      <div class="pitcher-head">
+        <span class="status registered"></span>
+        <span class="pitcher-name">モイネロ</span>
+        <span class="pitcher-meta">最新 8/13</span>
+      </div>
+
+      <div class="detail">
+        <div class="roster-info">
+          一軍登録中
+        </div>
+
+        <div class="appearance">
+          <div class="appearance-top">
+            <strong>8/13</strong>
+            <span class="level">一軍</span>
+          </div>
+          <div class="appearance-main">
+            E H　先発<br>
+            7回 102球<br>
+            1失点（1自責）　勝
+          </div>
+        </div>
+
+        <div class="appearance farm">
+          <div class="appearance-top">
+            <strong>8/6</strong>
+            <span class="level">FARM</span>
+          </div>
+          <div class="appearance-main">
+            T H　先発<br>
+            4回 61球<br>
+            0失点（0自責）
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="pitcher">
+      <div class="pitcher-head">
+        <span class="status ineligible"></span>
+        <span class="pitcher-name">有原航平</span>
+        <span class="pitcher-meta">最新 8/5</span>
+      </div>
+
+      <div class="detail">
+        <div class="roster-info">
+          抹消中<br>
+          最終抹消：8/12<br>
+          再登録可能：8/22
+        </div>
+
+        <div class="appearance">
+          <div class="appearance-top">
+            <strong>8/5</strong>
+            <span class="level">一軍</span>
+          </div>
+          <div class="appearance-main">
+            E H　先発<br>
+            7回 103球<br>
+            1失点（1自責）　勝
+          </div>
+        </div>
+
+        <div class="appearance farm">
+          <div class="appearance-top">
+            <strong>8/1</strong>
+            <span class="level">FARM</span>
+          </div>
+          <div class="appearance-main">
+            T H　先発<br>
+            5回 71球<br>
+            0失点（0自責）
+          </div>
+        </div>
+
+        <div class="appearance farm">
+          <div class="appearance-top">
+            <strong>7/28</strong>
+            <span class="level">FARM</span>
+          </div>
+          <div class="appearance-main">
+            C V　救援<br>
+            2回 29球<br>
+            0失点（0自責）
+          </div>
+        </div>
+
+        <button class="more">さらに表示</button>
+      </div>
+    </div>
+
+    <div class="pitcher">
+      <div class="pitcher-head">
+        <span class="status eligible"></span>
+        <span class="pitcher-name">大津亮介</span>
+        <span class="pitcher-meta">最新 8/6</span>
+      </div>
+
+      <div class="detail">
+        <div class="roster-info">
+          抹消中・再登録可能
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</section>
+
+</main>
+
+<script>
+const tabs = document.querySelectorAll(".tab");
+const pages = document.querySelectorAll(".page");
+
+tabs.forEach(tab => {
+  tab.addEventListener("click", () => {
+    tabs.forEach(t => t.classList.remove("active"));
+    pages.forEach(p => p.classList.remove("active"));
+
+    tab.classList.add("active");
+    document.getElementById(tab.dataset.page).classList.add("active");
+  });
+});
+
+document.querySelectorAll(".pitcher-head").forEach(head => {
+  head.addEventListener("click", () => {
+    head.parentElement.classList.toggle("open");
+  });
+});
+
+const teamSelect = document.getElementById("teamSelect");
+
+const savedTeam = localStorage.getItem("selectedTeam");
+
+if (savedTeam) {
+  teamSelect.value = savedTeam;
+}
+
+teamSelect.addEventListener("change", () => {
+  localStorage.setItem("selectedTeam", teamSelect.value);
+});
+</script>
+
 </body>
 </html>
