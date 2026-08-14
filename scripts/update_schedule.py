@@ -403,3 +403,50 @@ if position != -1:
     print(test_text[start:end])
 else:
     print("モイネロ NOT FOUND")
+print()
+print("=== STARTER PARSE TEST ===")
+
+# HTMLエンティティを少し整える
+clean_text = test_text.replace("&nbsp;", " ")
+clean_text = re.sub(r"\s+", " ", clean_text)
+
+# 「モイネロ」の後ろに続く投手成績の数値を取得
+match = re.search(
+    r"([○●△]?)\s*モイネロ\s+"
+    r"(\d+)\s+"      # 球数
+    r"(\d+)\s+"      # 打者
+    r"([0-9.]+)\s+"  # 投球回
+    r"(\d+)\s+"      # 被安打
+    r"(\d+)\s+"      # 被本塁打
+    r"(\d+)\s+"      # 四球
+    r"(\d+)\s+"      # 死球
+    r"(\d+)\s+"      # 奪三振
+    r"(\d+)\s+"      # 暴投
+    r"(\d+)\s+"      # ボーク
+    r"(\d+)\s+"      # 失点
+    r"(\d+)",         # 自責点
+    clean_text
+)
+
+if match:
+    decision_mark = match.group(1)
+
+    if decision_mark == "○":
+        decision = "W"
+    elif decision_mark == "●":
+        decision = "L"
+    else:
+        decision = "ND"
+
+    starter_data = {
+        "name": "モイネロ",
+        "pitches": int(match.group(2)),
+        "innings": match.group(4),
+        "runs": int(match.group(13)),
+        "earnedRuns": int(match.group(14)),
+        "decision": decision
+    }
+
+    print(starter_data)
+else:
+    print("STARTER PARSE FAILED")
