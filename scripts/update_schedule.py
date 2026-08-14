@@ -457,3 +457,109 @@ away_result = get_softbank_starter(
 )
 
 print("8/8 away:", away_result)
+from urllib.parse import urljoin
+
+print()
+print("=== 5 GAME APPEARANCE TEST ===")
+
+# 8月の日程ページから試合URLを取得
+schedule_html = fetch_html(8)
+
+links = re.findall(
+    r'href=["\']([^"\']+)["\']',
+    schedule_html
+)
+
+score_links = []
+
+for link in links:
+    full_url = urljoin(
+        "https://npb.jp/games/2026/schedule_08_detail.html",
+        link
+    )
+
+    if "/scores/2026/" in full_url:
+        score_links.append(full_url)
+
+score_links = list(dict.fromkeys(score_links))
+
+
+def find_hawks_game_url(date):
+    date_code = date[5:7] + date[8:10]
+
+    for url in score_links:
+        if f"/{date_code}/" not in url:
+            continue
+
+        match = re.search(
+            r"/scores/2026/\d{4}/([^/]+)/?$",
+            url
+        )
+
+        if not match:
+            continue
+
+        parts = match.group(1).split("-")
+
+        if len(parts) >= 2 and "h" in parts[:2]:
+            return url.rstrip("/") + "/box.html"
+
+    return None
+
+
+test_dates = [
+    "2026-08-04",
+    "2026-08-05",
+    "2026-08-06",
+    "2026-08-07",
+    "2026-08-08",
+]
+
+test_appearances = []
+
+for date in test_dates:
+    game = next(
+        (
+            g for g in all_games
+            if g["date"] == date
+        ),
+        None
+    )
+
+    if game is None:
+        print(date, "GAME NOT FOUND")
+        continue
+
+    box_url = find_hawks_game_url(date)
+
+    if box_url is None:
+        print(date, "URL NOT FOUND")
+        continue
+
+    starter = get_softbank_starter(box_url)
+
+    if starter is None:
+        print(date, "STARTER NOT FOUND")
+        continue
+
+    appearance = {
+        "date": date,
+        "teamId": "H",
+        "opponentId": game["opponentId"],
+        "homeAway": game["homeAway"],
+        "starter": starter
+    }
+
+    test_appearances.append(appearance)
+
+    print(
+        json.dumps(
+            appearance,
+            ensure_ascii=False
+        )
+    )
+
+print(
+    "5-game records:",
+    len(test_appearances)
+)
