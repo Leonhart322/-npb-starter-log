@@ -553,3 +553,53 @@ test_games = [
 for label, url in test_games:
     result = get_softbank_starter(url)
     print(label, result)
+from urllib.parse import urljoin
+
+print()
+print("=== GAME URL TEST ===")
+
+SCHEDULE_URL = "https://npb.jp/games/2026/schedule_08_detail.html"
+
+request = urllib.request.Request(
+    SCHEDULE_URL,
+    headers={"User-Agent": "Mozilla/5.0"}
+)
+
+with urllib.request.urlopen(request, timeout=30) as response:
+    schedule_html = response.read().decode(
+        "utf-8",
+        errors="replace"
+    )
+
+# 試合詳細ページへのリンク候補を全部取得
+links = re.findall(
+    r'href=["\']([^"\']+)["\']',
+    schedule_html
+)
+
+score_links = []
+
+for link in links:
+    full_url = urljoin(SCHEDULE_URL, link)
+
+    if "/scores/2026/" in full_url:
+        score_links.append(full_url)
+
+# 重複除去
+score_links = list(dict.fromkeys(score_links))
+
+print("score links found:", len(score_links))
+
+for target in ("0811", "0813"):
+    print()
+    print("DATE:", target)
+
+    found = False
+
+    for url in score_links:
+        if f"/{target}/" in url:
+            print(url)
+            found = True
+
+    if not found:
+        print("NOT FOUND")
