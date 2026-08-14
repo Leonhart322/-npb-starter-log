@@ -4,11 +4,12 @@ import urllib.request
 from html.parser import HTMLParser
 from pathlib import Path
 
-URL = "https://npb.jp/games/2026/schedule_08_detail.html"
 OUTPUT_FILE = Path("data/games_2026.json")
 
 TARGET_TEAM = "ソフトバンク"
 TARGET_TEAM_ID = "H"
+
+MONTHS = range(3, 11)
 
 TEAM_IDS = {
     "巨人": "G",
@@ -38,7 +39,6 @@ class ScheduleParser(HTMLParser):
     def handle_starttag(self, tag, attrs):
         if tag == "tr":
             self.current_row = []
-
         elif tag in ("td", "th") and self.current_row is not None:
             self.current_cell = []
 
@@ -63,31 +63,50 @@ class ScheduleParser(HTMLParser):
             self.current_cell.append(data)
 
 
-def fetch_html():
+def fetch_html(month):
+    url = (
+        f"https://npb.jp/games/2026/"
+        f"schedule_{month:02d}_detail.html"
+    )
+
     request = urllib.request.Request(
-        URL,
+        url,
         headers={"User-Agent": "Mozilla/5.0"}
     )
 
-    with urllib.request.urlopen(request, timeout=30) as response:
-        return response.read().decode("utf-8", errors="replace")
+    with urllib.request.urlopen(
+        request,
+        timeout=30
+    ) as response:
+        return response.read().decode(
+            "utf-8",
+            errors="replace"
+        )
 
 
-def parse_schedule(html):
+def parse_month(month):
+    html = fetch_html(month)
+
     parser = ScheduleParser()
     parser.feed(html)
 
     current_date = None
     games = []
+    seen_dates = set()
 
     for row in parser.rows:
         row_text = " | ".join(row)
 
-        date_match = re.search(r"8/(\d{1,2})", row_text)
+        date_match = re.search(
+            rf"{month}/(\d{{1,2}})",
+            row_text
+        )
 
         if date_match:
             day = int(date_match.group(1))
-            current_date = f"2026-08-{day:02d}"
+            current_date = (
+                f"2026-{month:02d}-{day:02d}"
+            )
 
         if current_date is None:
             continue
@@ -101,10 +120,13 @@ def parse_schedule(html):
             position = row_text.find(team)
 
             if position != -1:
-                team_positions.append((position, team))
+                team_positions.append(
+                    (position, team)
+                )
 
         team_positions.sort()
 
+        # NPB12球団同士の試合だけを採用
         if len(team_positions) != 2:
             continue
 
@@ -120,6 +142,12 @@ def parse_schedule(html):
             opponent = home_team
             starter_index = 1
 
+        # 同じ球団が同日に複数登録されるのを防ぐ
+        if current_date in seen_dates:
+            continue
+
+        seen_dates.add(current_date)
+
         starters = re.findall(
             r"先発\s*[：:]\s*([^\s|]+)",
             row_text
@@ -128,12 +156,19 @@ def parse_schedule(html):
         announced_starter = None
 
         if len(starters) >= 2:
-            announced_starter = starters[starter_index]
+            announced_starter = (
+                starters[starter_index]
+            )
 
         if "中止" in row_text:
             status = "CANCELLED"
-        elif re.search(r"\d+\s*-\s*\d+", row_text):
+
+        elif re.search(
+            r"\d+\s*-\s*\d+",
+            row_text
+        ):
             status = "FINISHED"
+
         else:
             status = "SCHEDULED"
 
@@ -141,8 +176,10 @@ def parse_schedule(html):
 
         games.append({
             "gameId": (
-                f"{current_date}-{TARGET_TEAM_ID}-"
-                f"{opponent_id}-{home_away}"
+                f"{current_date}-"
+                f"{TARGET_TEAM_ID}-"
+                f"{opponent_id}-"
+                f"{home_away}"
             ),
             "date": current_date,
             "teamId": TARGET_TEAM_ID,
@@ -150,7 +187,9 @@ def parse_schedule(html):
             "homeAway": home_away,
             "status": status,
             "starter": None,
-            "announcedStarter": announced_starter
+            "announcedStarter": (
+                announced_starter
+            )
         })
 
     return games
@@ -170,8 +209,13 @@ def load_existing():
         return json.load(file)
 
 
-def merge_games(existing_data, new_games):
-    existing_games = existing_data.get("games", [])
+def merge_games(
+    existing_data,
+    new_games
+):
+    existing_games = (
+        existing_data.get("games", [])
+    )
 
     existing_map = {}
 
@@ -184,7 +228,6 @@ def merge_games(existing_data, new_games):
 
     merged = []
 
-    # 今回取得した8月ソフトバンク戦
     for new_game in new_games:
         key = (
             new_game["date"],
@@ -193,23 +236,35 @@ def merge_games(existing_data, new_games):
 
         old_game = existing_map.get(key)
 
-        # 既存の先発実績があれば残す
         if old_game:
-            if old_game.get("starter") is not None:
-                new_game["starter"] = old_game["starter"]
+            # 実際の先発登板データは残す
+            if old_game.get(
+                "starter"
+            ) is not None:
+                new_game["starter"] = (
+                    old_game["starter"]
+                )
 
-            # 試合終了後は予告先発を表示しない
-            if new_game["status"] == "FINISHED":
-                new_game["announcedStarter"] = None
+            # 終了済みなら予告先発は消す
+            if (
+                new_game["status"]
+                == "FINISHED"
+            ):
+                new_game[
+                    "announcedStarter"
+                ] = None
 
         merged.append(new_game)
 
-    # 8月ソフトバンク戦以外の既存データは残す
     new_keys = {
-        (game["date"], game["teamId"])
+        (
+            game["date"],
+            game["teamId"]
+        )
         for game in new_games
     }
 
+    # 今回の対象外データは残す
     for old_game in existing_games:
         key = (
             old_game.get("date"),
@@ -232,11 +287,26 @@ def merge_games(existing_data, new_games):
     }
 
 
-html = fetch_html()
-new_games = parse_schedule(html)
+all_games = []
+
+for month in MONTHS:
+    month_games = parse_month(month)
+
+    print(
+        f"{month}月:",
+        len(month_games),
+        "games"
+    )
+
+    all_games.extend(month_games)
+
 
 existing_data = load_existing()
-output_data = merge_games(existing_data, new_games)
+
+output_data = merge_games(
+    existing_data,
+    all_games
+)
 
 with OUTPUT_FILE.open(
     "w",
@@ -249,15 +319,20 @@ with OUTPUT_FILE.open(
         indent=2
     )
 
+
+print()
 print("status: OK")
-print("August SoftBank games:", len(new_games))
+print(
+    "SoftBank regular-season games:",
+    len(all_games)
+)
 print("saved:", OUTPUT_FILE)
 
-for game in new_games:
+for game in all_games:
     if game["date"] in (
-        "2026-08-11",
-        "2026-08-13",
+        "2026-03-27",
         "2026-08-15",
-        "2026-08-18"
+        "2026-10-01",
+        "2026-10-02",
     ):
         print(game)
