@@ -1,4 +1,39 @@
 {
   "season": 2026,
-  "games": []
+  "games": [
+    {
+      "gameId": "2026-08-11-H-M-15",
+      "date": "2026-08-11",
+      "teamId": "H",
+      "opponentId": "M",
+      "homeAway": "H",
+      "status": "FINISHED",
+      "starter": {
+        "name": "モイネロ",
+        "innings": "6",
+        "pitches": null,
+        "runs": null,
+        "earnedRuns": null,
+        "decision": "W"
+      },
+      "announcedStarter": null
+    },
+    {
+      "gameId": "2026-08-13-H-M-17",
+      "date": "2026-08-13",
+      "teamId": "H",
+      "opponentId": "M",
+      "homeAway": "H",
+      "status": "FINISHED",
+      "starter": {
+        "name": "スチュワート・ジュニア",
+        "innings": "1.1",
+        "pitches": 43,
+        "runs": 2,
+        "earnedRuns": 2,
+        "decision": "L"
+      },
+      "announcedStarter": null
+    }
+  ]
 }
