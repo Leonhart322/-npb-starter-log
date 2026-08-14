@@ -371,71 +371,7 @@ for game in cancelled_games:
     )
 import html as html_module
 
-def get_softbank_starter(url):
-    request = urllib.request.Request(
-        url,
-        headers={"User-Agent": "Mozilla/5.0"}
-    )
-
-    with urllib.request.urlopen(request, timeout=30) as response:
-        page_html = response.read().decode(
-            "utf-8",
-            errors="replace"
-        )
-
-    text = re.sub(r"<[^>]+>", " ", page_html)
-    text = html_module.unescape(text)
-    text = re.sub(r"\s+", " ", text)
-
-    team_pos = text.rfind("福岡ソフトバンクホークス")
-
-    if team_pos == -1:
-        return None
-
-    team_text = text[team_pos:]
-
-    header_pos = team_text.find(
-        "投手 投球数 打者 投球回"
-    )
-
-    if header_pos == -1:
-        return None
-
-    pitcher_text = team_text[
-        header_pos + len("投手 投球数 打者 投球回"):
-    ]
-
-    match = re.search(
-        r"([○●]?)\s*"
-        r"([^\s]+)\s+"
-        r"(\d+)\s+"
-        r"(\d+)\s+"
-        r"(\d+(?:\s*\.\s*[12])?)\s+"
-        r"(\d+)\s+"
-        r"(\d+)\s+"
-        r"(\d+)\s+"
-        r"(\d+)\s+"
-        r"(\d+)\s+"
-        r"(\d+)\s+"
-        r"(\d+)\s+"
-        r"(\d+)\s+"
-        r"(\d+)",
-        pitcher_text
-    )
-
-    if not match:
-        return None
-
-    mark = match.group(1)
-
-    if mark == "○":
-        decision = "W"
-    elif mark == "●":
-        decision = "L"
-    else:
-        decision = "ND"
-
-        return {
+    return {
         "name": match.group(2),
         "pitches": int(match.group(3)),
         "innings": re.sub(r"\s+", "", match.group(5)),
@@ -443,6 +379,19 @@ def get_softbank_starter(url):
         "earnedRuns": int(match.group(14)),
         "decision": decision
     }
+
+
+print()
+print("=== STARTER RECHECK ===")
+
+test_urls = {
+    "2026-04-18": "https://npb.jp/scores/2026/0418/h-b-02/box.html",
+    "2026-04-19": "https://npb.jp/scores/2026/0419/h-b-03/box.html",
+}
+
+for date, url in test_urls.items():
+    result = get_softbank_starter(url)
+    print(date, result)
 
 
 print()
