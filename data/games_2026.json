@@ -2,7 +2,87 @@
   "season": 2026,
   "games": [
     {
-      "gameId": "2026-08-11-H-M-15",
+      "gameId": "2026-08-01-H-E-V",
+      "date": "2026-08-01",
+      "teamId": "H",
+      "opponentId": "E",
+      "homeAway": "V",
+      "status": "FINISHED",
+      "starter": null,
+      "announcedStarter": null
+    },
+    {
+      "gameId": "2026-08-02-H-E-V",
+      "date": "2026-08-02",
+      "teamId": "H",
+      "opponentId": "E",
+      "homeAway": "V",
+      "status": "FINISHED",
+      "starter": null,
+      "announcedStarter": null
+    },
+    {
+      "gameId": "2026-08-04-H-F-H",
+      "date": "2026-08-04",
+      "teamId": "H",
+      "opponentId": "F",
+      "homeAway": "H",
+      "status": "FINISHED",
+      "starter": null,
+      "announcedStarter": null
+    },
+    {
+      "gameId": "2026-08-05-H-F-H",
+      "date": "2026-08-05",
+      "teamId": "H",
+      "opponentId": "F",
+      "homeAway": "H",
+      "status": "FINISHED",
+      "starter": null,
+      "announcedStarter": null
+    },
+    {
+      "gameId": "2026-08-06-H-F-H",
+      "date": "2026-08-06",
+      "teamId": "H",
+      "opponentId": "F",
+      "homeAway": "H",
+      "status": "FINISHED",
+      "starter": null,
+      "announcedStarter": null
+    },
+    {
+      "gameId": "2026-08-07-H-L-V",
+      "date": "2026-08-07",
+      "teamId": "H",
+      "opponentId": "L",
+      "homeAway": "V",
+      "status": "FINISHED",
+      "starter": null,
+      "announcedStarter": null
+    },
+    {
+      "gameId": "2026-08-08-H-L-V",
+      "date": "2026-08-08",
+      "teamId": "H",
+      "opponentId": "L",
+      "homeAway": "V",
+      "status": "FINISHED",
+      "starter": null,
+      "announcedStarter": null
+    },
+    {
+      "gameId": "2026-08-09-H-L-V",
+      "date": "2026-08-09",
+      "teamId": "H",
+      "opponentId": "L",
+      "homeAway": "V",
+      "status": "FINISHED",
+      "starter": null,
+      "announcedStarter": null
+    },
+    {
+      "gameId": "2026-08-11-H-M-H",
       "date": "2026-08-11",
       "teamId": "H",
       "opponentId": "M",
@@ -19,7 +99,17 @@
       "announcedStarter": null
     },
     {
-      "gameId": "2026-08-13-H-M-17",
+      "gameId": "2026-08-12-H-M-H",
+      "date": "2026-08-12",
+      "teamId": "H",
+      "opponentId": "M",
+      "homeAway": "H",
+      "status": "FINISHED",
+      "starter": null,
+      "announcedStarter": null
+    },
+    {
+      "gameId": "2026-08-13-H-M-H",
       "date": "2026-08-13",
       "teamId": "H",
       "opponentId": "M",
@@ -33,6 +123,146 @@
         "earnedRuns": 2,
         "decision": "L"
       },
+      "announcedStarter": null
+    },
+    {
+      "gameId": "2026-08-14-H-E-H",
+      "date": "2026-08-14",
+      "teamId": "H",
+      "opponentId": "E",
+      "homeAway": "H",
+      "status": "FINISHED",
+      "starter": null,
+      "announcedStarter": null
+    },
+    {
+      "gameId": "2026-08-15-H-E-H",
+      "date": "2026-08-15",
+      "teamId": "H",
+      "opponentId": "E",
+      "homeAway": "H",
+      "status": "SCHEDULED",
+      "starter": null,
+      "announcedStarter": "上茶谷"
+    },
+    {
+      "gameId": "2026-08-16-H-E-H",
+      "date": "2026-08-16",
+      "teamId": "H",
+      "opponentId": "E",
+      "homeAway": "H",
+      "status": "SCHEDULED",
+      "starter": null,
+      "announcedStarter": null
+    },
+    {
+      "gameId": "2026-08-18-H-F-V",
+      "date": "2026-08-18",
+      "teamId": "H",
+      "opponentId": "F",
+      "homeAway": "V",
+      "status": "SCHEDULED",
+      "starter": null,
+      "announcedStarter": null
+    },
+    {
+      "gameId": "2026-08-19-H-F-V",
+      "date": "2026-08-19",
+      "teamId": "H",
+      "opponentId": "F",
+      "homeAway": "V",
+      "status": "SCHEDULED",
+      "starter": null,
+      "announcedStarter": null
+    },
+    {
+      "gameId": "2026-08-20-H-F-V",
+      "date": "2026-08-20",
+      "teamId": "H",
+      "opponentId": "F",
+      "homeAway": "V",
+      "status": "SCHEDULED",
+      "starter": null,
+      "announcedStarter": null
+    },
+    {
+      "gameId": "2026-08-22-H-B-H",
+      "date": "2026-08-22",
+      "teamId": "H",
+      "opponentId": "B",
+      "homeAway": "H",
+      "status": "SCHEDULED",
+      "starter": null,
+      "announcedStarter": null
+    },
+    {
+      "gameId": "2026-08-23-H-B-H",
+      "date": "2026-08-23",
+      "teamId": "H",
+      "opponentId": "B",
+      "homeAway": "H",
+      "status": "SCHEDULED",
+      "starter": null,
+      "announcedStarter": null
+    },
+    {
+      "gameId": "2026-08-25-H-M-V",
+      "date": "2026-08-25",
+      "teamId": "H",
+      "opponentId": "M",
+      "homeAway": "V",
+      "status": "SCHEDULED",
+      "starter": null,
+      "announcedStarter": null
+    },
+    {
+      "gameId": "2026-08-26-H-M-V",
+      "date": "2026-08-26",
+      "teamId": "H",
+      "opponentId": "M",
+      "homeAway": "V",
+      "status": "SCHEDULED",
+      "starter": null,
+      "announcedStarter": null
+    },
+    {
+      "gameId": "2026-08-27-H-M-V",
+      "date": "2026-08-27",
+      "teamId": "H",
+      "opponentId": "M",
+      "homeAway": "V",
+      "status": "SCHEDULED",
+      "starter": null,
+      "announcedStarter": null
+    },
+    {
+      "gameId": "2026-08-28-H-B-V",
+      "date": "2026-08-28",
+      "teamId": "H",
+      "opponentId": "B",
+      "homeAway": "V",
+      "status": "SCHEDULED",
+      "starter": null,
+      "announcedStarter": null
+    },
+    {
+      "gameId": "2026-08-29-H-B-V",
+      "date": "2026-08-29",
+      "teamId": "H",
+      "opponentId": "B",
+      "homeAway": "V",
+      "status": "SCHEDULED",
+      "starter": null,
+      "announcedStarter": null
+    },
+    {
+      "gameId": "2026-08-30-H-B-V",
+      "date": "2026-08-30",
+      "teamId": "H",
+      "opponentId": "B",
+      "homeAway": "V",
+      "status": "SCHEDULED",
+      "starter": null,
       "announcedStarter": null
     }
   ]
