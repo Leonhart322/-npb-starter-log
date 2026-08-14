@@ -371,16 +371,179 @@ for game in cancelled_games:
     )
 import html as html_module
 
-    return {
-        "name": match.group(2),
-        "pitches": int(match.group(3)),
-        "innings": re.sub(r"\s+", "", match.group(5)),
-        "runs": int(match.group(13)),
-        "earnedRuns": int(match.group(14)),
-        "decision": decision
-    }
+class BoxScoreParser(HTMLParser):
+    def __init__(self):
+        super().__init__()
+        self.in_heading = False
+        self.heading_text = []
+
+        self.in_softbank = False
+
+        self.current_row = None
+        self.current_cell = None
+
+        self.rows = []
+
+    def handle_starttag(self, tag, attrs):
+        if tag in ("h3", "h4"):
+            self.in_heading = True
+            self.heading_text = []
+
+        elif tag == "tr":
+            self.current_row = []
+
+        elif (
+            tag in ("td", "th")
+            and self.current_row is not None
+        ):
+            self.current_cell = []
+
+    def handle_endtag(self, tag):
+        if tag in ("h3", "h4") and self.in_heading:
+            heading = "".join(self.heading_text)
+            heading = re.sub(
+                r"\s+",
+                " ",
+                heading
+            ).strip()
+
+            self.in_softbank = (
+                "福岡ソフトバンクホークス"
+                in heading
+            )
+
+            self.in_heading = False
+            self.heading_text = []
+
+        elif (
+            tag in ("td", "th")
+            and self.current_cell is not None
+        ):
+            text = "".join(self.current_cell)
+
+            text = re.sub(
+                r"\s+",
+                " ",
+                text
+            ).strip()
+
+            # 空セルも残す
+            self.current_row.append(text)
+
+            self.current_cell = None
+
+        elif tag == "tr" and self.current_row is not None:
+            if self.in_softbank and self.current_row:
+                self.rows.append(
+                    self.current_row
+                )
+
+            self.current_row = None
+
+    def handle_data(self, data):
+        if self.in_heading:
+            self.heading_text.append(data)
+
+        if self.current_cell is not None:
+            self.current_cell.append(data)
 
 
+def get_softbank_starter(url):
+    request = urllib.request.Request(
+        url,
+        headers={
+            "User-Agent": "Mozilla/5.0"
+        }
+    )
+
+    with urllib.request.urlopen(
+        request,
+        timeout=30
+    ) as response:
+        page_html = response.read().decode(
+            "utf-8",
+            errors="replace"
+        )
+
+    parser = BoxScoreParser()
+    parser.feed(page_html)
+
+    pitcher_header_index = None
+
+    for i, row in enumerate(parser.rows):
+        row_text = " ".join(row)
+
+        if (
+            "投手" in row_text
+            and "投球数" in row_text
+            and "打者" in row_text
+            and "投球回" in row_text
+            and "失点" in row_text
+            and "自責点" in row_text
+        ):
+            pitcher_header_index = i
+            break
+
+    if pitcher_header_index is None:
+        return None
+
+    # 投手表ヘッダーの次から探す
+    for row in parser.rows[
+        pitcher_header_index + 1:
+    ]:
+        # 空欄を含めても通常14列
+        if len(row) < 14:
+            continue
+
+        # 先頭列：○ / ● / 空欄など
+        mark = row[0]
+
+        # 2列目が投手名
+        name = row[1]
+
+        if not name:
+            continue
+
+        if name == "チーム計":
+            return None
+
+        # 数字として読めなければ
+        # 投手行ではないので飛ばす
+        try:
+            pitches = int(row[2])
+            innings = re.sub(
+                r"\s+",
+                "",
+                row[4]
+            )
+            runs = int(row[12])
+            earned_runs = int(row[13])
+
+        except (
+            ValueError,
+            IndexError
+        ):
+            continue
+
+        if mark == "○":
+            decision = "W"
+
+        elif mark == "●":
+            decision = "L"
+
+        else:
+            decision = "ND"
+
+        return {
+            "name": name,
+            "pitches": pitches,
+            "innings": innings,
+            "runs": runs,
+            "earnedRuns": earned_runs,
+            "decision": decision
+        }
+
+    return None    
 print()
 print("=== STARTER RECHECK ===")
 
