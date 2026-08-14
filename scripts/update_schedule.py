@@ -59,9 +59,7 @@ class ScheduleParser(HTMLParser):
 
 request = urllib.request.Request(
     URL,
-    headers={
-        "User-Agent": "Mozilla/5.0"
-    }
+    headers={"User-Agent": "Mozilla/5.0"}
 )
 
 with urllib.request.urlopen(request, timeout=30) as response:
@@ -72,14 +70,11 @@ parser = ScheduleParser()
 parser.feed(html)
 
 current_date = None
-
 games = []
-seen = set()
 
 for row in parser.rows:
     row_text = " | ".join(row)
 
-    # 日付を取得
     date_match = re.search(r"8/(\d{1,2})", row_text)
 
     if date_match:
@@ -89,53 +84,83 @@ for row in parser.rows:
     if current_date is None:
         continue
 
-    # ソフトバンクを含まない行は無視
     if TARGET_TEAM not in row_text:
         continue
 
-    # この行に含まれる球団名を抽出
-    teams_found = []
+    # 球団名を「文章中に出てくる順番」で取得
+    team_positions = []
 
     for team in TEAM_NAMES:
-        if team in row_text:
-            teams_found.append(team)
+        position = row_text.find(team)
 
-    # 2球団ちょうど含まれる行だけ採用
-    if len(teams_found) != 2:
+        if position != -1:
+            team_positions.append((position, team))
+
+    team_positions.sort()
+
+    if len(team_positions) != 2:
         continue
 
-    # 同じ行を重複登録しない
-    key = (current_date, row_text)
+    home_team = team_positions[0][1]
+    away_team = team_positions[1][1]
 
-    if key in seen:
-        continue
+    if TARGET_TEAM == home_team:
+        home_away = "H"
+        opponent = away_team
+        starter_index = 0
+    else:
+        home_away = "V"
+        opponent = home_team
+        starter_index = 1
 
-    seen.add(key)
-
-    opponent = (
-        teams_found[1]
-        if teams_found[0] == TARGET_TEAM
-        else teams_found[0]
+    # 予告先発を掲載順に取得
+    starters = re.findall(
+        r"先発\s*[：:]\s*([^\s|]+)",
+        row_text
     )
+
+    announced_starter = None
+
+    if len(starters) >= 2:
+        announced_starter = starters[starter_index]
+
+    # 試合状態
+    if "中止" in row_text:
+        status = "CANCELLED"
+    elif re.search(r"\d+\s*-\s*\d+", row_text):
+        status = "FINISHED"
+    else:
+        status = "SCHEDULED"
 
     games.append({
         "date": current_date,
         "opponent": opponent,
+        "homeAway": home_away,
+        "status": status,
+        "announcedStarter": announced_starter,
         "raw": row_text
     })
 
 
 print("status: OK")
-print("total rows:", len(parser.rows))
-print("softbank games found:", len(games))
+print("softbank games:", len(games))
 print()
 
 for game in games:
     print(
         game["date"],
-        TARGET_TEAM,
+        game["homeAway"],
         "vs",
-        game["opponent"]
+        game["opponent"],
+        "|",
+        game["status"],
+        "| 予告:",
+        game["announcedStarter"]
     )
-    print("  ", game["raw"])
-    print()
+
+print()
+print("=== 8/15 CHECK ===")
+
+for game in games:
+    if game["date"] == "2026-08-15":
+        print(game)
