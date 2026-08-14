@@ -2,6 +2,8 @@ name: Update NPB Schedule
 
 on:
   workflow_dispatch:
+  schedule:
+    - cron: "10 18 * * *"
 permissions:
   contents: write
 jobs:
