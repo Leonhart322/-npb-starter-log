@@ -410,7 +410,7 @@ def get_softbank_starter(url):
         r"([^\s]+)\s+"
         r"(\d+)\s+"
         r"(\d+)\s+"
-        r"(\d+(?:\.\d+)?)\s+"
+        r"(\d+(?:\s*\.\s*[12])?)\s+"
         r"(\d+)\s+"
         r"(\d+)\s+"
         r"(\d+)\s+"
@@ -438,7 +438,7 @@ def get_softbank_starter(url):
     return {
         "name": match.group(2),
         "pitches": int(match.group(3)),
-        "innings": match.group(5),
+        "innings": re.sub(r"\s+", "", match.group(5)),
         "runs": int(match.group(13)),
         "earnedRuns": int(match.group(14)),
         "decision": decision
@@ -447,129 +447,3 @@ def get_softbank_starter(url):
 
 from urllib.parse import urljoin
 
-print()
-print("=== ALL FINISHED STARTERS TEST ===")
-
-# 月ごとのNPBスコアページURLを集める
-score_links_by_date = {}
-
-for month in MONTHS:
-    month_html = fetch_html(month)
-
-    links = re.findall(
-        r'href=["\']([^"\']+)["\']',
-        month_html
-    )
-
-    base_url = (
-        f"https://npb.jp/games/2026/"
-        f"schedule_{month:02d}_detail.html"
-    )
-
-    for link in links:
-        full_url = urljoin(base_url, link)
-
-        match = re.search(
-            r"/scores/2026/(\d{4})/([^/]+)/?$",
-            full_url
-        )
-
-        if not match:
-            continue
-
-        date_code = match.group(1)
-        game_code = match.group(2)
-
-        parts = game_code.split("-")
-
-        # h = ホークスが含まれる試合
-        if "h" not in parts[:2]:
-            continue
-
-        date = (
-            f"2026-{date_code[:2]}-"
-            f"{date_code[2:]}"
-        )
-
-        score_links_by_date[date] = (
-            full_url.rstrip("/") + "/box.html"
-        )
-
-
-all_appearances = []
-failed_games = []
-
-for game in all_games:
-    if game["status"] != "FINISHED":
-        continue
-
-    date = game["date"]
-    box_url = score_links_by_date.get(date)
-
-    if box_url is None:
-        failed_games.append(
-            (date, "URL NOT FOUND")
-        )
-        continue
-
-    try:
-        starter = get_softbank_starter(
-            box_url
-        )
-    except Exception as error:
-        failed_games.append(
-            (date, f"ERROR: {error}")
-        )
-        continue
-
-    if starter is None:
-        failed_games.append(
-            (date, "STARTER NOT FOUND")
-        )
-        continue
-
-    appearance = {
-        "date": date,
-        "teamId": "H",
-        "opponentId": game["opponentId"],
-        "homeAway": game["homeAway"],
-        "starter": starter
-    }
-
-    all_appearances.append(appearance)
-
-    print(
-        date,
-        starter["name"],
-        starter["innings"],
-        starter["pitches"],
-        starter["runs"],
-        starter["earnedRuns"],
-        starter["decision"]
-    )
-
-
-print()
-print(
-    "finished games:",
-    sum(
-        1 for game in all_games
-        if game["status"] == "FINISHED"
-    )
-)
-
-print(
-    "starter records:",
-    len(all_appearances)
-)
-
-print(
-    "failed:",
-    len(failed_games)
-)
-
-print()
-print("=== FAILED GAMES ===")
-
-for failed in failed_games:
-    print(*failed)
