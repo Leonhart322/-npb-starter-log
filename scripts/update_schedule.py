@@ -435,13 +435,15 @@ def get_softbank_starter(url):
     else:
         decision = "ND"
 
-    return {
+        return {
         "name": match.group(2),
         "pitches": int(match.group(3)),
         "innings": re.sub(r"\s+", "", match.group(5)),
         "runs": int(match.group(13)),
         "earnedRuns": int(match.group(14)),
         "decision": decision
+    }
+
 
 print()
 print("=== STARTER RECHECK ===")
@@ -454,8 +456,3 @@ test_urls = {
 for date, url in test_urls.items():
     result = get_softbank_starter(url)
     print(date, result)
-    }
-
-
-
-
