@@ -369,3 +369,91 @@ for game in cancelled_games:
         "vs",
         game["opponentId"]
     )
+import html as html_module
+
+def get_softbank_starter(url):
+    request = urllib.request.Request(
+        url,
+        headers={"User-Agent": "Mozilla/5.0"}
+    )
+
+    with urllib.request.urlopen(request, timeout=30) as response:
+        page_html = response.read().decode(
+            "utf-8",
+            errors="replace"
+        )
+
+    text = re.sub(r"<[^>]+>", " ", page_html)
+    text = html_module.unescape(text)
+    text = re.sub(r"\s+", " ", text)
+
+    team_pos = text.rfind("福岡ソフトバンクホークス")
+
+    if team_pos == -1:
+        return None
+
+    team_text = text[team_pos:]
+
+    header_pos = team_text.find(
+        "投手 投球数 打者 投球回"
+    )
+
+    if header_pos == -1:
+        return None
+
+    pitcher_text = team_text[
+        header_pos + len("投手 投球数 打者 投球回"):
+    ]
+
+    match = re.search(
+        r"([○●]?)\s*"
+        r"([^\s]+)\s+"
+        r"(\d+)\s+"
+        r"(\d+)\s+"
+        r"(\d+(?:\.\d+)?)\s+"
+        r"(\d+)\s+"
+        r"(\d+)\s+"
+        r"(\d+)\s+"
+        r"(\d+)\s+"
+        r"(\d+)\s+"
+        r"(\d+)\s+"
+        r"(\d+)\s+"
+        r"(\d+)",
+        pitcher_text
+    )
+
+    if not match:
+        return None
+
+    mark = match.group(1)
+
+    if mark == "○":
+        decision = "W"
+    elif mark == "●":
+        decision = "L"
+    else:
+        decision = "ND"
+
+    return {
+        "name": match.group(2),
+        "pitches": int(match.group(3)),
+        "innings": match.group(5),
+        "runs": int(match.group(13)),
+        "earnedRuns": int(match.group(14)),
+        "decision": decision
+    }
+
+
+print()
+print("=== AWAY STARTER TEST ===")
+
+away_test_url = (
+    "https://npb.jp/scores/2026/0808/"
+    "l-h-19/box.html"
+)
+
+away_result = get_softbank_starter(
+    away_test_url
+)
+
+print("8/8 away:", away_result)
