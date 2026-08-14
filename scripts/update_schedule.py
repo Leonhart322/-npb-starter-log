@@ -418,6 +418,7 @@ def get_softbank_starter(url):
         r"(\d+)\s+"
         r"(\d+)\s+"
         r"(\d+)\s+"
+        r"(\d+)\s+"
         r"(\d+)",
         pitcher_text
     )
