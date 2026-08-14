@@ -450,3 +450,106 @@ if match:
     print(starter_data)
 else:
     print("STARTER PARSE FAILED")
+import html as html_module
+
+print()
+print("=== GENERIC STARTER TEST ===")
+
+
+def get_softbank_starter(url):
+    request = urllib.request.Request(
+        url,
+        headers={"User-Agent": "Mozilla/5.0"}
+    )
+
+    with urllib.request.urlopen(request, timeout=30) as response:
+        page_html = response.read().decode(
+            "utf-8",
+            errors="replace"
+        )
+
+    text = re.sub(r"<[^>]+>", " ", page_html)
+    text = html_module.unescape(text)
+    text = re.sub(r"\s+", " ", text)
+
+    # ソフトバンクの成績欄を探す
+    team_pos = text.rfind("福岡ソフトバンクホークス")
+
+    if team_pos == -1:
+        return None
+
+    team_text = text[team_pos:]
+
+    # ソフトバンクの投手成績表を探す
+    header_pos = team_text.find(
+        "投手 投球数 打者 投球回"
+    )
+
+    if header_pos == -1:
+        return None
+
+    pitcher_text = team_text[
+        header_pos + len("投手 投球数 打者 投球回"):
+    ]
+
+    # 投手成績表の最初の投手＝先発投手
+    match = re.search(
+        r"([○●]?)\s*"
+        r"([^\s]+)\s+"
+        r"(\d+)\s+"                 # 球数
+        r"(\d+)\s+"                 # 打者
+        r"(\d+(?:\s*\.\s*[12])?)\s+"  # 投球回
+        r"(\d+)\s+"                 # 安打
+        r"(\d+)\s+"                 # 本塁打
+        r"(\d+)\s+"                 # 四球
+        r"(\d+)\s+"                 # 死球
+        r"(\d+)\s+"                 # 三振
+        r"(\d+)\s+"                 # 暴投
+        r"(\d+)\s+"                 # ボーク
+        r"(\d+)\s+"                 # 失点
+        r"(\d+)",                    # 自責点
+        pitcher_text
+    )
+
+    if not match:
+        return None
+
+    mark = match.group(1)
+
+    if mark == "○":
+        decision = "W"
+    elif mark == "●":
+        decision = "L"
+    else:
+        decision = "ND"
+
+    innings = re.sub(
+        r"\s+",
+        "",
+        match.group(5)
+    )
+
+    return {
+        "name": match.group(2),
+        "pitches": int(match.group(3)),
+        "innings": innings,
+        "runs": int(match.group(13)),
+        "earnedRuns": int(match.group(14)),
+        "decision": decision
+    }
+
+
+test_games = [
+    (
+        "8/11",
+        "https://npb.jp/scores/2026/0811/h-m-15/box.html"
+    ),
+    (
+        "8/13",
+        "https://npb.jp/scores/2026/0813/h-m-17/box.html"
+    )
+]
+
+for label, url in test_games:
+    result = get_softbank_starter(url)
+    print(label, result)
