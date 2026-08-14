@@ -603,3 +603,46 @@ for target in ("0811", "0813"):
 
     if not found:
         print("NOT FOUND")
+print()
+print("=== HAWKS GAME URL PICK TEST ===")
+
+def pick_hawks_game_url(date_text, urls):
+    candidates = []
+
+    for url in urls:
+        if f"/{date_text}/" not in url:
+            continue
+
+        # URL末尾の対戦カード部分を確認
+        match = re.search(
+            r"/scores/2026/\d{4}/([^/]+)/?$",
+            url
+        )
+
+        if not match:
+            continue
+
+        game_code = match.group(1)
+
+        # h がホークスを表す試合だけ残す
+        teams = game_code.split("-")
+
+        if "h" in teams[:2]:
+            candidates.append(url)
+
+    if len(candidates) == 1:
+        return candidates[0]
+
+    return {
+        "count": len(candidates),
+        "candidates": candidates
+    }
+
+
+for target in ("0811", "0813"):
+    result = pick_hawks_game_url(
+        target,
+        score_links
+    )
+
+    print(target, result)
