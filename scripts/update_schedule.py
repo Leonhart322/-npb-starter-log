@@ -337,6 +337,7 @@ for game in all_games:
     ):
         print(game)
         print()
+
 print("=== CHECK ===")
 
 cancelled_games = [
@@ -369,11 +370,12 @@ for game in cancelled_games:
         "vs",
         game["opponentId"]
     )
-import html as html_module
+
 
 class BoxScoreParser(HTMLParser):
     def __init__(self):
         super().__init__()
+
         self.in_heading = False
         self.heading_text = []
 
@@ -399,13 +401,27 @@ class BoxScoreParser(HTMLParser):
             self.current_cell = []
 
     def handle_endtag(self, tag):
-        if tag in ("h3", "h4") and self.in_heading:
-            heading = "".join(self.heading_text)
+        if (
+            tag in ("h3", "h4")
+            and self.in_heading
+        ):
+            heading = "".join(
+                self.heading_text
+            )
+
             heading = re.sub(
                 r"\s+",
                 " ",
                 heading
             ).strip()
+
+            # 一時的な検証用
+            # NPBのh3/h4をHTMLParserが
+            # 実際にどう読んでいるか確認する
+            print(
+                "DEBUG HEADING:",
+                repr(heading)
+            )
 
             self.in_softbank = (
                 "福岡ソフトバンクホークス"
@@ -419,7 +435,9 @@ class BoxScoreParser(HTMLParser):
             tag in ("td", "th")
             and self.current_cell is not None
         ):
-            text = "".join(self.current_cell)
+            text = "".join(
+                self.current_cell
+            )
 
             text = re.sub(
                 r"\s+",
@@ -432,8 +450,14 @@ class BoxScoreParser(HTMLParser):
 
             self.current_cell = None
 
-        elif tag == "tr" and self.current_row is not None:
-            if self.in_softbank and self.current_row:
+        elif (
+            tag == "tr"
+            and self.current_row is not None
+        ):
+            if (
+                self.in_softbank
+                and self.current_row
+            ):
                 self.rows.append(
                     self.current_row
                 )
@@ -470,7 +494,9 @@ def get_softbank_starter(url):
 
     pitcher_header_index = None
 
-    for i, row in enumerate(parser.rows):
+    for i, row in enumerate(
+        parser.rows
+    ):
         row_text = " ".join(row)
 
         if (
@@ -507,17 +533,24 @@ def get_softbank_starter(url):
         if name == "チーム計":
             return None
 
-        # 数字として読めなければ
-        # 投手行ではないので飛ばす
         try:
-            pitches = int(row[2])
+            pitches = int(
+                row[2]
+            )
+
             innings = re.sub(
                 r"\s+",
                 "",
                 row[4]
             )
-            runs = int(row[12])
-            earned_runs = int(row[13])
+
+            runs = int(
+                row[12]
+            )
+
+            earned_runs = int(
+                row[13]
+            )
 
         except (
             ValueError,
@@ -543,28 +576,26 @@ def get_softbank_starter(url):
             "decision": decision
         }
 
-    return None    
-print()
-print("=== STARTER RECHECK ===")
-
-test_urls = {
-    "2026-04-18": "https://npb.jp/scores/2026/0418/h-b-02/box.html",
-    "2026-04-19": "https://npb.jp/scores/2026/0419/h-b-03/box.html",
-}
-
-for date, url in test_urls.items():
-    result = get_softbank_starter(url)
-    print(date, result)
+    return None
 
 
 print()
 print("=== STARTER RECHECK ===")
 
 test_urls = {
-    "2026-04-18": "https://npb.jp/scores/2026/0418/h-b-02/box.html",
-    "2026-04-19": "https://npb.jp/scores/2026/0419/h-b-03/box.html",
+    "2026-04-18":
+        "https://npb.jp/scores/2026/0418/h-b-02/box.html",
+
+    "2026-04-19":
+        "https://npb.jp/scores/2026/0419/h-b-03/box.html",
 }
 
 for date, url in test_urls.items():
-    result = get_softbank_starter(url)
-    print(date, result)
+    result = get_softbank_starter(
+        url
+    )
+
+    print(
+        date,
+        result
+    )
