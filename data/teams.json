@@ -1,3 +1,76 @@
 {
-  "teams": []
+  "teams": [
+    {
+      "id": "H",
+      "name": "福岡ソフトバンクホークス",
+      "shortName": "ソフトバンク",
+      "league": "PL"
+    },
+    {
+      "id": "F",
+      "name": "北海道日本ハムファイターズ",
+      "shortName": "日本ハム",
+      "league": "PL"
+    },
+    {
+      "id": "M",
+      "name": "千葉ロッテマリーンズ",
+      "shortName": "ロッテ",
+      "league": "PL"
+    },
+    {
+      "id": "E",
+      "name": "東北楽天ゴールデンイーグルス",
+      "shortName": "楽天",
+      "league": "PL"
+    },
+    {
+      "id": "B",
+      "name": "オリックス・バファローズ",
+      "shortName": "オリックス",
+      "league": "PL"
+    },
+    {
+      "id": "L",
+      "name": "埼玉西武ライオンズ",
+      "shortName": "西武",
+      "league": "PL"
+    },
+    {
+      "id": "G",
+      "name": "読売ジャイアンツ",
+      "shortName": "巨人",
+      "league": "CL"
+    },
+    {
+      "id": "T",
+      "name": "阪神タイガース",
+      "shortName": "阪神",
+      "league": "CL"
+    },
+    {
+      "id": "DB",
+      "name": "横浜DeNAベイスターズ",
+      "shortName": "DeNA",
+      "league": "CL"
+    },
+    {
+      "id": "C",
+      "name": "広島東洋カープ",
+      "shortName": "広島",
+      "league": "CL"
+    },
+    {
+      "id": "S",
+      "name": "東京ヤクルトスワローズ",
+      "shortName": "ヤクルト",
+      "league": "CL"
+    },
+    {
+      "id": "D",
+      "name": "中日ドラゴンズ",
+      "shortName": "中日",
+      "league": "CL"
+    }
+  ]
 }
