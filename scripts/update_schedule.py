@@ -445,102 +445,87 @@ def get_softbank_starter(url):
     }
 
 
-print()
-print("=== AWAY STARTER TEST ===")
-
-away_test_url = (
-    "https://npb.jp/scores/2026/0808/"
-    "l-h-19/box.html"
-)
-
-away_result = get_softbank_starter(
-    away_test_url
-)
-
-print("8/8 away:", away_result)
 from urllib.parse import urljoin
 
 print()
-print("=== 5 GAME APPEARANCE TEST ===")
+print("=== ALL FINISHED STARTERS TEST ===")
 
-# 8月の日程ページから試合URLを取得
-schedule_html = fetch_html(8)
+# 月ごとのNPBスコアページURLを集める
+score_links_by_date = {}
 
-links = re.findall(
-    r'href=["\']([^"\']+)["\']',
-    schedule_html
-)
+for month in MONTHS:
+    month_html = fetch_html(month)
 
-score_links = []
-
-for link in links:
-    full_url = urljoin(
-        "https://npb.jp/games/2026/schedule_08_detail.html",
-        link
+    links = re.findall(
+        r'href=["\']([^"\']+)["\']',
+        month_html
     )
 
-    if "/scores/2026/" in full_url:
-        score_links.append(full_url)
+    base_url = (
+        f"https://npb.jp/games/2026/"
+        f"schedule_{month:02d}_detail.html"
+    )
 
-score_links = list(dict.fromkeys(score_links))
-
-
-def find_hawks_game_url(date):
-    date_code = date[5:7] + date[8:10]
-
-    for url in score_links:
-        if f"/{date_code}/" not in url:
-            continue
+    for link in links:
+        full_url = urljoin(base_url, link)
 
         match = re.search(
-            r"/scores/2026/\d{4}/([^/]+)/?$",
-            url
+            r"/scores/2026/(\d{4})/([^/]+)/?$",
+            full_url
         )
 
         if not match:
             continue
 
-        parts = match.group(1).split("-")
+        date_code = match.group(1)
+        game_code = match.group(2)
 
-        if len(parts) >= 2 and "h" in parts[:2]:
-            return url.rstrip("/") + "/box.html"
+        parts = game_code.split("-")
 
-    return None
+        # h = ホークスが含まれる試合
+        if "h" not in parts[:2]:
+            continue
+
+        date = (
+            f"2026-{date_code[:2]}-"
+            f"{date_code[2:]}"
+        )
+
+        score_links_by_date[date] = (
+            full_url.rstrip("/") + "/box.html"
+        )
 
 
-test_dates = [
-    "2026-08-04",
-    "2026-08-05",
-    "2026-08-06",
-    "2026-08-07",
-    "2026-08-08",
-]
+all_appearances = []
+failed_games = []
 
-test_appearances = []
-
-for date in test_dates:
-    game = next(
-        (
-            g for g in all_games
-            if g["date"] == date
-        ),
-        None
-    )
-
-    if game is None:
-        print(date, "GAME NOT FOUND")
+for game in all_games:
+    if game["status"] != "FINISHED":
         continue
 
-    box_url = find_hawks_game_url(date)
+    date = game["date"]
+    box_url = score_links_by_date.get(date)
 
     if box_url is None:
-        print(date, "URL NOT FOUND")
+        failed_games.append(
+            (date, "URL NOT FOUND")
+        )
         continue
 
-    starter = get_softbank_starter(box_url)
+    try:
+        starter = get_softbank_starter(
+            box_url
+        )
+    except Exception as error:
+        failed_games.append(
+            (date, f"ERROR: {error}")
+        )
+        continue
 
     if starter is None:
-        print(date, "STARTER NOT FOUND")
+        failed_games.append(
+            (date, "STARTER NOT FOUND")
+        )
         continue
 
     appearance = {
@@ -551,16 +536,40 @@ for date in test_dates:
         "starter": starter
     }
 
-    test_appearances.append(appearance)
+    all_appearances.append(appearance)
 
     print(
-        json.dumps(
-            appearance,
-            ensure_ascii=False
-        )
+        date,
+        starter["name"],
+        starter["innings"],
+        starter["pitches"],
+        starter["runs"],
+        starter["earnedRuns"],
+        starter["decision"]
     )
 
+
+print()
 print(
-    "5-game records:",
-    len(test_appearances)
+    "finished games:",
+    sum(
+        1 for game in all_games
+        if game["status"] == "FINISHED"
+    )
 )
+
+print(
+    "starter records:",
+    len(all_appearances)
+)
+
+print(
+    "failed:",
+    len(failed_games)
+)
+
+print()
+print("=== FAILED GAMES ===")
+
+for failed in failed_games:
+    print(*failed)
