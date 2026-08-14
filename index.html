@@ -601,7 +601,126 @@ if (savedTeam) {
 
 teamSelect.addEventListener("change", () => {
   localStorage.setItem("selectedTeam", teamSelect.value);
+  loadCalendar();
 });
+
+function dateText(dateString) {
+  const [, month, day] = dateString.split("-");
+  return `${Number(month)}/${Number(day)}`;
+}
+
+function makeDay(dateString, game) {
+  if (!game) {
+    return `
+      <div class="day">
+        <div class="date">${dateText(dateString)}</div>
+        <div class="no-game">―</div>
+      </div>
+    `;
+  }
+
+  if (game.status === "CANCELLED") {
+    return `
+      <div class="day">
+        <div class="date">${dateText(dateString)}</div>
+        <div class="match">
+          <span class="opponent">${game.opponentId}</span>
+          ${game.homeAway}
+        </div>
+        <div class="cancelled">中止</div>
+      </div>
+    `;
+  }
+
+  let starterHtml = "";
+
+  if (game.starter) {
+    const innings = game.starter.innings ?? "―";
+    const pitches = game.starter.pitches ?? "―";
+
+    starterHtml = `
+      <div class="starter">${game.starter.name}</div>
+      <div class="line">${innings}回 ${pitches}球</div>
+    `;
+  } else if (game.announcedStarter) {
+    starterHtml = `
+      <div class="starter announced">[予]${game.announcedStarter}</div>
+    `;
+  }
+
+  return `
+    <div class="day">
+      <div class="date">${dateText(dateString)}</div>
+      <div class="match">
+        <span class="opponent">${game.opponentId}</span>
+        ${game.homeAway}
+      </div>
+      ${starterHtml}
+    </div>
+  `;
+}
+
+async function loadCalendar() {
+  const response = await fetch("./data/games_2026.json");
+  const data = await response.json();
+
+  const selectedTeam = teamSelect.value;
+
+  const games = data.games.filter(
+    game => game.teamId === selectedTeam
+  );
+
+  const gameMap = {};
+
+  games.forEach(game => {
+    gameMap[game.date] = game;
+  });
+
+  const dates = [
+    "2026-08-10",
+    "2026-08-11",
+    "2026-08-12",
+    "2026-08-13",
+    "2026-08-14",
+    "2026-08-15",
+    "2026-08-16",
+    "2026-08-17",
+    "2026-08-18",
+    "2026-08-19",
+    "2026-08-20",
+    "2026-08-21",
+    "2026-08-22",
+    "2026-08-23"
+  ];
+
+  const calendar = document.querySelector(".calendar");
+
+  let html = `
+    <div class="weekdays">
+      <div class="weekday">月</div>
+      <div class="weekday">火</div>
+      <div class="weekday">水</div>
+      <div class="weekday">木</div>
+      <div class="weekday">金</div>
+      <div class="weekday">土</div>
+      <div class="weekday">日</div>
+    </div>
+  `;
+
+  for (let i = 0; i < dates.length; i += 7) {
+    html += `<div class="week">`;
+
+    dates.slice(i, i + 7).forEach(date => {
+      html += makeDay(date, gameMap[date]);
+    });
+
+    html += `</div>`;
+  }
+
+  calendar.innerHTML = html;
+}
+
+loadCalendar();
 </script>
 
 </body>
