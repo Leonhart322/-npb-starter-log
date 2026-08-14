@@ -336,3 +336,36 @@ for game in all_games:
         "2026-10-02",
     ):
         print(game)
+        print()
+print("=== CHECK ===")
+
+cancelled_games = [
+    game for game in all_games
+    if game["status"] == "CANCELLED"
+]
+
+finished_games = [
+    game for game in all_games
+    if game["status"] == "FINISHED"
+]
+
+scheduled_games = [
+    game for game in all_games
+    if game["status"] == "SCHEDULED"
+]
+
+print("total records:", len(all_games))
+print("cancelled:", len(cancelled_games))
+print("finished:", len(finished_games))
+print("scheduled:", len(scheduled_games))
+
+print()
+print("=== CANCELLED GAMES ===")
+
+for game in cancelled_games:
+    print(
+        game["date"],
+        game["homeAway"],
+        "vs",
+        game["opponentId"]
+    )
