@@ -438,8 +438,8 @@ def get_softbank_starter(url):
         "name": match.group(2),
         "pitches": int(match.group(3)),
         "innings": match.group(5),
-        "runs": int(match.group(13)),
-        "earnedRuns": int(match.group(14)),
+        "runs": int(match.group(12)),
+        "earnedRuns": int(match.group(13)),
         "decision": decision
     }
 
