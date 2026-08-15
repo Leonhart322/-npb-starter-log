@@ -126,7 +126,6 @@ def parse_month(month):
 
         team_positions.sort()
 
-        # NPB12球団同士の試合だけを採用
         if len(team_positions) != 2:
             continue
 
@@ -142,7 +141,6 @@ def parse_month(month):
             opponent = home_team
             starter_index = 1
 
-        # 同じ球団が同日に複数登録されるのを防ぐ
         if current_date in seen_dates:
             continue
 
@@ -156,9 +154,7 @@ def parse_month(month):
         announced_starter = None
 
         if len(starters) >= 2:
-            announced_starter = (
-                starters[starter_index]
-            )
+            announced_starter = starters[starter_index]
 
         if "中止" in row_text or "ノーゲーム" in row_text:
             status = "CANCELLED"
@@ -187,9 +183,7 @@ def parse_month(month):
             "homeAway": home_away,
             "status": status,
             "starter": None,
-            "announcedStarter": (
-                announced_starter
-            )
+            "announcedStarter": announced_starter
         })
 
     return games
@@ -209,12 +203,10 @@ def load_existing():
         return json.load(file)
 
 
-def merge_games(
-    existing_data,
-    new_games
-):
-    existing_games = (
-        existing_data.get("games", [])
+def merge_games(existing_data, new_games):
+    existing_games = existing_data.get(
+        "games",
+        []
     )
 
     existing_map = {}
@@ -224,6 +216,7 @@ def merge_games(
             game.get("date"),
             game.get("teamId")
         )
+
         existing_map[key] = game
 
     merged = []
@@ -237,22 +230,13 @@ def merge_games(
         old_game = existing_map.get(key)
 
         if old_game:
-            # 実際の先発登板データは残す
-            if old_game.get(
-                "starter"
-            ) is not None:
+            if old_game.get("starter") is not None:
                 new_game["starter"] = (
                     old_game["starter"]
                 )
 
-            # 終了済みなら予告先発は消す
-            if (
-                new_game["status"]
-                == "FINISHED"
-            ):
-                new_game[
-                    "announcedStarter"
-                ] = None
+            if new_game["status"] == "FINISHED":
+                new_game["announcedStarter"] = None
 
         merged.append(new_game)
 
@@ -264,7 +248,6 @@ def merge_games(
         for game in new_games
     }
 
-    # 今回の対象外データは残す
     for old_game in existing_games:
         key = (
             old_game.get("date"),
@@ -415,9 +398,6 @@ class BoxScoreParser(HTMLParser):
                 heading
             ).strip()
 
-            # 一時的な検証用
-            # NPBのh3/h4をHTMLParserが
-            # 実際にどう読んでいるか確認する
             print(
                 "DEBUG HEADING:",
                 repr(heading)
@@ -445,7 +425,6 @@ class BoxScoreParser(HTMLParser):
                 text
             ).strip()
 
-            # 空セルも残す
             self.current_row.append(text)
 
             self.current_cell = None
@@ -492,6 +471,15 @@ def get_softbank_starter(url):
     parser = BoxScoreParser()
     parser.feed(page_html)
 
+    print()
+    print("=== DEBUG SOFTBANK ROWS ===")
+
+    for i, row in enumerate(parser.rows):
+        print(
+            i,
+            repr(row)
+        )
+
     pitcher_header_index = None
 
     for i, row in enumerate(
@@ -513,18 +501,13 @@ def get_softbank_starter(url):
     if pitcher_header_index is None:
         return None
 
-    # 投手表ヘッダーの次から探す
     for row in parser.rows[
         pitcher_header_index + 1:
     ]:
-        # 空欄を含めても通常14列
         if len(row) < 14:
             continue
 
-        # 先頭列：○ / ● / 空欄など
         mark = row[0]
-
-        # 2列目が投手名
         name = row[1]
 
         if not name:
