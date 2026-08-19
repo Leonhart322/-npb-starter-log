@@ -1141,9 +1141,9 @@
       "teamId": "H",
       "opponentId": "F",
       "homeAway": "V",
-      "status": "SCHEDULED",
+      "status": "FINISHED",
       "starter": null,
-      "announcedStarter": "上沢"
+      "announcedStarter": null
     },
     {
       "gameId": "2026-08-20-H-F-V",
@@ -1153,7 +1153,7 @@
       "homeAway": "V",
       "status": "SCHEDULED",
       "starter": null,
-      "announcedStarter": null
+      "announcedStarter": "前田悠"
     },
     {
       "gameId": "2026-08-22-H-B-H",
