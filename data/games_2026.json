@@ -1171,9 +1171,9 @@
       "teamId": "H",
       "opponentId": "B",
       "homeAway": "H",
-      "status": "SCHEDULED",
+      "status": "FINISHED",
       "starter": null,
-      "announcedStarter": "松本晴"
+      "announcedStarter": null
     },
     {
       "gameId": "2026-08-25-H-M-V",
