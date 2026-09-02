@@ -1251,9 +1251,9 @@
       "teamId": "H",
       "opponentId": "F",
       "homeAway": "V",
-      "status": "SCHEDULED",
+      "status": "FINISHED",
       "starter": null,
-      "announcedStarter": "上沢"
+      "announcedStarter": null
     },
     {
       "gameId": "2026-09-04-H-L-H",
