@@ -1401,9 +1401,9 @@
       "teamId": "H",
       "opponentId": "E",
       "homeAway": "V",
-      "status": "SCHEDULED",
+      "status": "CANCELLED",
       "starter": null,
-      "announcedStarter": "上茶谷"
+      "announcedStarter": null
     },
     {
       "gameId": "2026-09-22-H-L-H",
@@ -1413,7 +1413,7 @@
       "homeAway": "H",
       "status": "SCHEDULED",
       "starter": null,
-      "announcedStarter": null
+      "announcedStarter": "上茶谷"
     },
     {
       "gameId": "2026-09-23-H-L-H",
