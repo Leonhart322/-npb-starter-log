@@ -1433,7 +1433,7 @@
       "homeAway": "V",
       "status": "SCHEDULED",
       "starter": null,
-      "announcedStarter": null
+      "announcedStarter": "松本晴"
     },
     {
       "gameId": "2026-09-26-H-E-H",
@@ -1480,6 +1480,16 @@
       "date": "2026-10-03",
       "teamId": "H",
       "opponentId": "M",
+      "homeAway": "V",
+      "status": "SCHEDULED",
+      "starter": null,
+      "announcedStarter": null
+    },
+    {
+      "gameId": "2026-10-05-H-E-V",
+      "date": "2026-10-05",
+      "teamId": "H",
+      "opponentId": "E",
       "homeAway": "V",
       "status": "SCHEDULED",
       "starter": null,
