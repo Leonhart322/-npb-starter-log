@@ -1494,6 +1494,16 @@
       "status": "SCHEDULED",
       "starter": null,
       "announcedStarter": null
+    },
+    {
+      "gameId": "2026-10-06-H-E-V",
+      "date": "2026-10-06",
+      "teamId": "H",
+      "opponentId": "E",
+      "homeAway": "V",
+      "status": "SCHEDULED",
+      "starter": null,
+      "announcedStarter": null
     }
   ]
 }
