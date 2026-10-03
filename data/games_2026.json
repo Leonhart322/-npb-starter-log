@@ -1481,9 +1481,9 @@
       "teamId": "H",
       "opponentId": "M",
       "homeAway": "V",
-      "status": "SCHEDULED",
+      "status": "FINISHED",
       "starter": null,
-      "announcedStarter": "松本晴"
+      "announcedStarter": null
     },
     {
       "gameId": "2026-10-05-H-E-V",
