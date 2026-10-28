@@ -1591,7 +1591,7 @@
       "teamId": "H",
       "opponentId": "DB",
       "homeAway": "V",
-      "status": "SCHEDULED",
+      "status": "FINISHED",
       "starter": null,
       "announcedStarter": null
     },
@@ -1601,7 +1601,7 @@
       "teamId": "H",
       "opponentId": "DB",
       "homeAway": "V",
-      "status": "SCHEDULED",
+      "status": "FINISHED",
       "starter": null,
       "announcedStarter": null
     },
@@ -1611,7 +1611,7 @@
       "teamId": "H",
       "opponentId": "DB",
       "homeAway": "H",
-      "status": "SCHEDULED",
+      "status": "FINISHED",
       "starter": null,
       "announcedStarter": null
     },
@@ -1621,7 +1621,7 @@
       "teamId": "H",
       "opponentId": "DB",
       "homeAway": "H",
-      "status": "SCHEDULED",
+      "status": "FINISHED",
       "starter": null,
       "announcedStarter": null
     },
